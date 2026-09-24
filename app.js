@@ -410,10 +410,6 @@ const indianDateText = document.getElementById('indianDateText');
 
 // Toolbar
 const syncNowBtn = document.getElementById('syncNowBtn');
-const fontToggleBtn = document.getElementById('fontToggleBtn');
-const fontToggleLabel = document.getElementById('fontToggleLabel');
-const soundToggleBtn = document.getElementById('soundToggleBtn');
-const soundIcon = document.getElementById('soundIcon');
 
 // Date Picker Modal
 const datePickerModal = document.getElementById('datePickerModal');
@@ -550,10 +546,11 @@ function renderDropdownResults(query) {
     return;
   }
 
-  // Render top 25 matches
+  // Render top 25 matches in a clean single line
   matches.slice(0, 25).forEach(item => {
     const timeParts = getTimeParts(now, item.tz);
-    const diff = getOffsetDiffFromIndia(item.tz, now);
+    const abbr = timeParts.tzAbbr || item.abbr;
+    const label = item.city.includes(abbr) ? item.city : `${item.city} (${abbr})`;
 
     const row = document.createElement('div');
     row.className = 'tz-drop-item';
@@ -561,19 +558,7 @@ function renderDropdownResults(query) {
       row.classList.add('selected');
     }
 
-    row.innerHTML = `
-      <div class="drop-item-left">
-        <div class="drop-city-line">
-          <span>${item.city}</span>
-          <span class="drop-abbr-tag">${timeParts.tzAbbr || item.abbr}</span>
-        </div>
-        <div class="drop-region-line">${item.name}</div>
-      </div>
-      <div class="drop-item-right">
-        <div class="drop-time-preview">${timeParts.timeDisplay} ${timeParts.period}</div>
-        <div class="drop-offset-diff">${diff}</div>
-      </div>
-    `;
+    row.textContent = label;
 
     row.addEventListener('click', () => {
       state.topTz = item.tz;
@@ -907,20 +892,7 @@ syncNowBtn.addEventListener('click', () => {
   renderUI();
 });
 
-// Font Toggle: Sketch Hand-drawn vs Modern Clean
-fontToggleBtn.addEventListener('click', () => {
-  state.fontMode = state.fontMode === 'sketch' ? 'modern' : 'sketch';
-  document.body.className = state.fontMode === 'sketch' ? 'font-sketch' : 'font-modern';
-  fontToggleLabel.textContent = state.fontMode === 'sketch' ? 'Modern' : 'Sketch';
-  playTactileTick();
-});
 
-// Sound Toggle
-soundToggleBtn.addEventListener('click', () => {
-  state.soundEnabled = !state.soundEnabled;
-  soundIcon.textContent = state.soundEnabled ? '🔊' : '🔇';
-  if (state.soundEnabled) playTactileTick();
-});
 
 // =====================================================================
 // INITIALIZATION
