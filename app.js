@@ -435,7 +435,7 @@ function renderUI() {
   if (document.activeElement !== topTimeDigitsInput) {
     topTimeDigitsInput.value = topInfo.timeDisplay;
   }
-  topTimeDigitsInput.style.width = topTimeDigitsInput.value.length <= 4 ? '180px' : '220px';
+  topTimeDigitsInput.style.width = topTimeDigitsInput.value.length <= 4 ? '4.2ch' : '5.2ch';
   topPeriodBtn.textContent = topInfo.period;
   topDateText.textContent = topInfo.dateDisplay;
 
@@ -452,7 +452,7 @@ function renderUI() {
   if (document.activeElement !== indianTimeDigitsInput) {
     indianTimeDigitsInput.value = indianInfo.timeDisplay;
   }
-  indianTimeDigitsInput.style.width = indianTimeDigitsInput.value.length <= 4 ? '180px' : '220px';
+  indianTimeDigitsInput.style.width = indianTimeDigitsInput.value.length <= 4 ? '4.2ch' : '5.2ch';
   indianPeriodBtn.textContent = indianInfo.period;
   indianDateText.textContent = indianInfo.dateDisplay;
 }
@@ -638,7 +638,7 @@ function setupNumericTimeInput(inputEl, periodBtn, targetType) {
     if (filtered !== inputEl.value) {
       inputEl.value = filtered;
     }
-    inputEl.style.width = inputEl.value.length <= 4 ? '180px' : '220px';
+    inputEl.style.width = inputEl.value.length <= 4 ? '4.2ch' : '5.2ch';
   });
 
   function applyNumericTime() {

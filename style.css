@@ -31,6 +31,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-page);
@@ -38,13 +42,16 @@ body {
     radial-gradient(circle at 50% 10%, #ffffff 0%, #eaeaea 100%);
   color: var(--ink-primary);
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  overflow-x: hidden;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -55,14 +62,17 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
+  height: 100%;
 }
 
 .sketch-card-frame {
   width: 100%;
-  max-width: 410px;
+  max-width: 416px;
+  height: 100%;
+  max-height: 100%;
   background: var(--card-bg);
   border: 2.8px solid var(--border-card);
-  border-radius: 40px;
+  border-radius: 36px;
   box-shadow: 
     0 20px 48px -10px rgba(0, 0, 0, 0.12),
     0 1px 3px rgba(0, 0, 0, 0.08);
@@ -71,29 +81,42 @@ body {
   position: relative;
   overflow: visible;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) and (min-height: 850px) {
+  .sketch-card-frame {
+    height: 780px;
+    max-height: calc(100dvh - 24px);
+  }
 }
 
 /* ==========================================================================
    SECTIONS: TOP & BOTTOM (EQUAL PROPORTION AROUND LIGHT GREY MIDDLE LINE)
    ========================================================================== */
 .card-section {
-  padding: 18px 22px;
+  padding: 14px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  box-sizing: border-box;
 }
 
 .top-section {
-  padding-top: 24px;
-  padding-bottom: 28px;
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-height: 0;
+  justify-content: space-evenly;
+  padding-top: 16px;
+  padding-bottom: 12px;
 }
 
 .bottom-section {
-  padding-top: 28px;
-  padding-bottom: 12px;
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-height: 0;
+  justify-content: space-evenly;
+  padding-top: 12px;
+  padding-bottom: 14px;
 }
 
 /* ==========================================================================
@@ -104,7 +127,7 @@ body {
   max-width: 320px;
   position: relative;
   z-index: 100;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .tz-search-box {
@@ -256,7 +279,7 @@ body {
   border: 1.5px solid var(--badge-border);
   padding: 4px 10px;
   border-radius: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -321,19 +344,20 @@ body {
 
 .time-digits-input {
   width: auto;
-  min-width: 195px;
+  min-width: 175px;
   max-width: 240px;
+  field-sizing: content;
   background: transparent;
   border: none;
   outline: none;
   font-family: var(--font-digits);
-  font-size: 4.4rem;
+  font-size: clamp(3.2rem, 7.5vh, 4.4rem);
   font-weight: 700;
   line-height: 1.15;
   text-align: right;
   color: var(--ink-primary);
   letter-spacing: -0.02em;
-  padding: 2px 6px;
+  padding: 2px 4px;
   cursor: pointer;
   overflow: visible;
   box-sizing: border-box;
@@ -356,7 +380,7 @@ body {
 
 .period-toggle-btn {
   font-family: var(--font-digits);
-  font-size: 2.2rem;
+  font-size: clamp(1.8rem, 3.8vh, 2.2rem);
   font-weight: 600;
   line-height: 1;
   color: var(--ink-primary);
@@ -404,7 +428,7 @@ body {
 
 .date-text {
   font-family: var(--font-body);
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 2.3vh, 1.35rem);
   font-weight: 600;
   color: var(--ink-primary);
   letter-spacing: -0.01em;
@@ -436,12 +460,12 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .indian-time-title {
   font-family: var(--font-heading);
-  font-size: 1.55rem;
+  font-size: clamp(1.3rem, 2.7vh, 1.55rem);
   font-weight: 700;
   color: var(--ink-primary);
   letter-spacing: -0.01em;
@@ -464,8 +488,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 18px;
-  margin-bottom: 22px;
+  margin: 0;
 }
 
 .now-pill-btn {
@@ -738,19 +761,10 @@ body {
 /* Responsive adjustment for small mobile viewports */
 @media (max-width: 440px) {
   body {
-    padding: 8px;
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
   }
 
   .sketch-card-frame {
-    border-radius: 32px;
-    min-height: calc(100vh - 16px);
-  }
-
-  .time-main {
-    font-size: 3.8rem;
-  }
-
-  .time-meridiem {
-    font-size: 1.8rem;
+    border-radius: 30px;
   }
 }
