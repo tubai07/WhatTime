@@ -3,183 +3,231 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatTime • Dual Timezone Interactive Clock</title>
+  <title>WhatTime • Simple Dual Timezone Clock</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shantell+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="font-sketch">
   <main class="viewport-wrapper">
-    <div class="screen-frame" id="appFrame">
+    <div class="sketch-card-frame" id="appFrame">
 
       <!-- ============================================== -->
-      <!-- UPPER HALF: WHERE YOU ARE (DAY / NIGHT THEMED) -->
+      <!-- TOP SECTION: SEARCH & TARGET TIMEZONE          -->
       <!-- ============================================== -->
-      <section class="half-screen half-top" id="halfTop">
-        <!-- Top Pill Buttons: Date & Time Zone (Matching Mockup) -->
-        <div class="pill-row">
-          <button class="pill-btn date-pill-btn" id="youDateBtn" title="Select date" type="button">
-            <span class="pill-icon">📅</span>
-            <span class="pill-text" id="youDateText">Date</span>
-          </button>
+      <section class="card-section top-section" id="topSection">
+        
+        <!-- Search Bar with Floating Dropdown -->
+        <div class="tz-search-wrapper" id="tzSearchWrapper">
+          <div class="tz-search-box">
+            <span class="tz-search-icon">🔍</span>
+            <input 
+              type="text" 
+              id="tzSearchInput" 
+              class="tz-search-input" 
+              placeholder="Time zone search" 
+              autocomplete="off" 
+              spellcheck="false"
+            >
+            <button id="tzClearBtn" class="tz-clear-btn" title="Clear search" type="button">✕</button>
+          </div>
 
-          <button class="pill-btn tz-pill-btn" id="youTzBtn" title="Search and select your timezone" type="button">
-            <span class="pill-text" id="youTzText">Time Zone</span>
-            <span class="pill-arrow">▾</span>
-          </button>
+          <!-- Timezone Suggestions Dropdown (Shown ONLY after typing) -->
+          <div class="tz-dropdown" id="tzDropdown">
+            <div class="tz-dropdown-list" id="tzDropdownList">
+              <!-- Dynamically populated when user types (e.g. 'pst', 'ust') -->
+            </div>
+          </div>
         </div>
 
-        <!-- Upper Large Time Display -->
-        <div class="time-readout-wrap" id="youTimeWrap" title="Click to adjust time">
-          <div class="time-digits" id="youTime">10:15<span class="time-period" id="youPeriod">am</span></div>
-          <div class="sub-dst-pill" id="youDstPill">PDT Active</div>
+        <!-- Selected Zone Tag -->
+        <div class="selected-zone-tag" id="topZoneTag" title="Click to search timezone">
+          <span class="zone-badge" id="topZoneBadge">PST</span>
+          <span class="zone-name" id="topZoneName">Pacific Time (Los Angeles)</span>
+          <span class="diff-badge" id="topZoneDiff">-12h 30m</span>
         </div>
 
-        <!-- Upper Needle Pointer pointing to center dial -->
-        <div class="needle-container needle-top">
-          <div class="needle-stem" id="youNeedleStem"></div>
+        <!-- Upper Time & Date Readout -->
+        <div class="time-block" id="topTimeBlock">
+          <div class="tappable-time" id="topTimeDisplay" title="Tap to change time">
+            <span class="time-main" id="topTimeText">10:15</span><span class="time-meridiem" id="topPeriodText">pm</span>
+            <span class="tap-hint-pill">Tap to edit</span>
+          </div>
+
+          <div class="tappable-date" id="topDateDisplay" title="Tap to change date">
+            <span class="date-text" id="topDateText">24 Sept, 2026</span>
+            <span class="cal-mini-icon">📅</span>
+          </div>
         </div>
+
       </section>
 
       <!-- ============================================== -->
-      <!-- CENTER: HORIZONTAL DIVIDER & ROTARY DIAL       -->
+      <!-- CENTER HORIZONTAL DIVIDER LINE                  -->
       <!-- ============================================== -->
-      <div class="center-dial-zone" id="centerDialZone">
-        <!-- Top and Bottom Zone Backdrop Fillers for Dial Area -->
-        <div class="dial-backdrop-top" id="dialBackdropTop"></div>
-        <div class="dial-backdrop-bottom" id="dialBackdropBottom"></div>
-
-        <!-- Horizontal Dividing Line bisecting the whole screen -->
-        <div class="horizontal-bisector"></div>
-
-        <!-- Full Circular Rotary Dial bisected by the line -->
-        <div class="rotary-wheel-container" id="rotaryWheelContainer">
-          <canvas id="rotaryCanvas"></canvas>
-          <div class="dial-center-cap" id="dialCenterCap"></div>
-        </div>
-
-        <!-- Floating Scrubber Delta Tooltip -->
-        <div class="scrub-delta-tooltip" id="scrubDeltaTooltip">0m</div>
+      <div class="sketch-divider" id="centerDivider">
+        <span class="divider-line"></span>
       </div>
 
       <!-- ============================================== -->
-      <!-- LOWER HALF: WHERE CLIENT IS (DAY / NIGHT THEMED) -->
+      <!-- BOTTOM SECTION: INDIAN TIME                     -->
       <!-- ============================================== -->
-      <section class="half-screen half-bottom" id="halfBottom">
-        <!-- Lower Needle Pointer pointing to client time -->
-        <div class="needle-container needle-bottom">
-          <div class="needle-stem" id="clientNeedleStem"></div>
+      <section class="card-section bottom-section" id="bottomSection">
+        
+        <!-- Label: Indian Time -->
+        <div class="indian-label-wrap">
+          <h2 class="indian-time-title">Indian Time</h2>
+          <span class="ist-badge">IST • UTC+5:30</span>
         </div>
 
-        <!-- Lower Large Time Display -->
-        <div class="time-readout-wrap" id="clientTimeWrap" title="Click to adjust time">
-          <div class="time-digits" id="clientTime">10:15<span class="time-period" id="clientPeriod">pm</span></div>
-          <div class="client-meta-row">
-            <span class="sub-dst-pill" id="clientDstPill">EDT Active</span>
-            <span class="sub-biz-pill" id="clientBizPill">💼 Business</span>
+        <!-- Lower Time & Date Readout -->
+        <div class="time-block" id="indianTimeBlock">
+          <div class="tappable-time" id="indianTimeDisplay" title="Tap to change Indian time">
+            <span class="time-main" id="indianTimeText">10:15</span><span class="time-meridiem" id="indianPeriodText">pm</span>
+            <span class="tap-hint-pill">Tap to edit</span>
+          </div>
+
+          <div class="tappable-date" id="indianDateDisplay" title="Tap to change Indian date">
+            <span class="date-text" id="indianDateText">24 Sept, 2026</span>
+            <span class="cal-mini-icon">📅</span>
           </div>
         </div>
 
-        <!-- Bottom Pill Buttons: Date & Time Zone (Matching Mockup) -->
-        <div class="pill-row">
-          <button class="pill-btn date-pill-btn" id="clientDateBtn" title="Select date" type="button">
-            <span class="pill-icon">📅</span>
-            <span class="pill-text" id="clientDateText">Date</span>
-          </button>
-
-          <button class="pill-btn tz-pill-btn" id="clientTzBtn" title="Search and select client timezone" type="button">
-            <span class="pill-text" id="clientTzText">Time Zone</span>
-            <span class="pill-arrow">▾</span>
-          </button>
-        </div>
       </section>
 
       <!-- ============================================== -->
-      <!-- MODERN IN-APP CALENDAR DATE PICKER MODAL       -->
+      <!-- BOTTOM DIVIDER LINE & TOOLBAR CONTROLS         -->
       <!-- ============================================== -->
-      <dialog id="modernDateModal" class="modern-modal modern-calendar-modal">
-        <div class="modal-card">
-          <!-- Calendar Header: Month, Year & Navigation -->
-          <div class="calendar-header">
-            <button id="calPrevMonthBtn" class="cal-nav-btn" title="Previous Month">‹</button>
-            <h3 id="calMonthYearTitle" class="cal-title">September 2026</h3>
-            <button id="calNextMonthBtn" class="cal-nav-btn" title="Next Month">›</button>
-          </div>
+      <div class="sketch-divider bottom-divider">
+        <span class="divider-line"></span>
+      </div>
 
-          <!-- Quick Date Preset Pills -->
-          <div class="cal-presets">
-            <button class="cal-preset-chip" id="presetToday">Today</button>
-            <button class="cal-preset-chip" id="presetTomorrow">Tomorrow</button>
-            <button class="cal-preset-chip" id="presetNextWeek">+1 Week</button>
-          </div>
+      <footer class="card-footer-toolbar">
+        <button id="syncNowBtn" class="toolbar-btn" title="Reset to current live time">
+          <span class="tb-icon">⚡</span>
+          <span class="tb-label">Now</span>
+        </button>
 
-          <!-- Day of Week Headers -->
-          <div class="cal-weekdays">
-            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-          </div>
+        <button id="fontToggleBtn" class="toolbar-btn" title="Toggle font between Hand-drawn sketch and Modern clean">
+          <span class="tb-icon">✏️</span>
+          <span class="tb-label" id="fontToggleLabel">Modern</span>
+        </button>
 
-          <!-- Interactive Days Grid -->
-          <div class="cal-days-grid" id="calDaysGrid">
-            <!-- Dynamically generated days -->
-          </div>
-
-          <!-- Close button -->
-          <div class="modal-footer-row">
-            <button id="calCloseBtn" class="modal-action-btn">Close</button>
-          </div>
-        </div>
-      </dialog>
-
-      <!-- ============================================== -->
-      <!-- MODERN SEARCHABLE TIMEZONE MODAL POPUP         -->
-      <!-- ============================================== -->
-      <dialog id="modernTzModal" class="modern-modal modern-tz-modal">
-        <div class="modal-card tz-card">
-          <div class="tz-header">
-            <h3 class="tz-modal-title" id="tzModalTitle">Select Time Zone</h3>
-            <button id="tzCloseBtn" class="tz-close-x" title="Close">✕</button>
-          </div>
-
-          <!-- Search Input Box -->
-          <div class="tz-search-bar">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="tzSearchInput" class="tz-search-input" placeholder="Search city, region, PDT, EDT, UTC..." autocomplete="off">
-            <button id="tzClearSearchBtn" class="tz-clear-btn" title="Clear">✕</button>
-          </div>
-
-          <!-- Quick Region Filter Chips -->
-          <div class="tz-region-chips" id="tzRegionChips">
-            <button class="region-chip active" data-region="all">All</button>
-            <button class="region-chip" data-region="Americas">Americas</button>
-            <button class="region-chip" data-region="Europe">Europe</button>
-            <button class="region-chip" data-region="Asia">Asia</button>
-            <button class="region-chip" data-region="Oceania">Oceania</button>
-            <button class="region-chip" data-region="Africa">Africa</button>
-          </div>
-
-          <!-- Scrollable Timezone Results List -->
-          <div class="tz-list-container" id="tzListContainer">
-            <!-- Dynamically populated with all world timezones -->
-          </div>
-        </div>
-      </dialog>
-
-      <!-- Minimalist Time Input Modal (For clicking on either time to edit directly) -->
-      <dialog id="timeInputModal" class="time-modal">
-        <div class="modal-box">
-          <h3 id="modalTitle">Set Time</h3>
-          <p class="modal-desc" id="modalDesc">Enter target time (1-min steps):</p>
-          <input type="time" id="modalTimeInput" class="custom-time-input" step="60">
-          <div class="modal-actions">
-            <button id="modalCancelBtn" class="modal-btn cancel">Cancel</button>
-            <button id="modalApplyBtn" class="modal-btn apply">Apply</button>
-          </div>
-        </div>
-      </dialog>
+        <button id="soundToggleBtn" class="toolbar-btn" title="Toggle tactile crown sound">
+          <span class="tb-icon" id="soundIcon">🔊</span>
+          <span class="tb-label" id="soundLabel">Sound</span>
+        </button>
+      </footer>
 
     </div>
   </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: TIME ADJUSTER (TAP TO CHANGE TIME)       -->
+  <!-- ============================================== -->
+  <dialog id="timePickerModal" class="sketch-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="timePickerTitle" class="modal-title">Set Time</h3>
+        <button id="timePickerCloseBtn" class="modal-close-x" type="button">✕</button>
+      </div>
+
+      <p class="modal-subtitle" id="timePickerSubtitle">
+        Adjusting will keep both timezones synchronized.
+      </p>
+
+      <!-- Time Input Spinner / Pickers -->
+      <div class="time-spinner-container">
+        <!-- Hour -->
+        <div class="spinner-col">
+          <button class="spin-btn spin-up" id="hourUpBtn" type="button">▲</button>
+          <input type="number" id="inputHour" class="spin-num-input" min="1" max="12" value="10">
+          <button class="spin-btn spin-down" id="hourDownBtn" type="button">▼</button>
+          <span class="spin-col-label">Hour</span>
+        </div>
+
+        <div class="spinner-colon">:</div>
+
+        <!-- Minute -->
+        <div class="spinner-col">
+          <button class="spin-btn spin-up" id="minUpBtn" type="button">▲</button>
+          <input type="number" id="inputMin" class="spin-num-input" min="0" max="59" value="15">
+          <button class="spin-btn spin-down" id="minDownBtn" type="button">▼</button>
+          <span class="spin-col-label">Min</span>
+        </div>
+
+        <!-- AM/PM Toggle Buttons -->
+        <div class="spinner-col meridiem-col">
+          <div class="meridiem-toggle-group">
+            <button type="button" class="ampm-btn" id="btnAm">AM</button>
+            <button type="button" class="ampm-btn active" id="btnPm">PM</button>
+          </div>
+          <span class="spin-col-label">Period</span>
+        </div>
+      </div>
+
+      <!-- Quick Nudge Increment Chips -->
+      <div class="quick-nudge-row">
+        <button type="button" class="nudge-chip" data-delta="-60">-1h</button>
+        <button type="button" class="nudge-chip" data-delta="-15">-15m</button>
+        <button type="button" class="nudge-chip" data-delta="15">+15m</button>
+        <button type="button" class="nudge-chip" data-delta="60">+1h</button>
+      </div>
+
+      <!-- Realtime Cross-Zone Preview -->
+      <div class="cross-zone-preview" id="crossZonePreview">
+        <span class="preview-label">Will update other timezone to:</span>
+        <span class="preview-value" id="previewOtherTime">10:15 am, 24 Sept</span>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="modal-footer-btns">
+        <button type="button" id="timePickerCancelBtn" class="m-btn m-btn-secondary">Cancel</button>
+        <button type="button" id="timePickerApplyBtn" class="m-btn m-btn-primary">Apply Time</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============================================== -->
+  <!-- MODAL: DATE PICKER (TAP TO CHANGE DATE)         -->
+  <!-- ============================================== -->
+  <dialog id="datePickerModal" class="sketch-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="datePickerTitle" class="modal-title">Select Date</h3>
+        <button id="datePickerCloseBtn" class="modal-close-x" type="button">✕</button>
+      </div>
+
+      <!-- Calendar Month/Year Nav -->
+      <div class="calendar-nav-bar">
+        <button type="button" id="calPrevBtn" class="cal-nav-arrow" title="Previous Month">‹</button>
+        <span id="calCurrentMonthYear" class="cal-nav-title">September 2026</span>
+        <button type="button" id="calNextBtn" class="cal-nav-arrow" title="Next Month">›</button>
+      </div>
+
+      <!-- Quick Presets -->
+      <div class="cal-quick-presets">
+        <button type="button" class="preset-chip" id="presetBtnToday">Today</button>
+        <button type="button" class="preset-chip" id="presetBtnTomorrow">Tomorrow</button>
+        <button type="button" class="preset-chip" id="presetBtnNextWeek">+1 Week</button>
+      </div>
+
+      <!-- Weekday Headers -->
+      <div class="cal-weekday-labels">
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+
+      <!-- Calendar Day Cells Grid -->
+      <div class="cal-grid" id="calDaysGrid">
+        <!-- Generated dynamically via app.js -->
+      </div>
+
+      <div class="modal-footer-btns">
+        <button type="button" id="datePickerCloseBottomBtn" class="m-btn m-btn-secondary">Close</button>
+      </div>
+    </div>
+  </dialog>
 
   <script src="app.js"></script>
 </body>
