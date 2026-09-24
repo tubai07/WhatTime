@@ -397,12 +397,14 @@ const topZoneBadge = document.getElementById('topZoneBadge');
 const topZoneName = document.getElementById('topZoneName');
 const topZoneDiff = document.getElementById('topZoneDiff');
 
-const topTimeInput = document.getElementById('topTimeInput');
+const topTimeDigitsInput = document.getElementById('topTimeDigitsInput');
+const topPeriodBtn = document.getElementById('topPeriodBtn');
 const topDateDisplay = document.getElementById('topDateDisplay');
 const topDateText = document.getElementById('topDateText');
 
 // Bottom Section (Indian Time)
-const indianTimeInput = document.getElementById('indianTimeInput');
+const indianTimeDigitsInput = document.getElementById('indianTimeDigitsInput');
+const indianPeriodBtn = document.getElementById('indianPeriodBtn');
 const indianDateDisplay = document.getElementById('indianDateDisplay');
 const indianDateText = document.getElementById('indianDateText');
 
@@ -434,9 +436,10 @@ function renderUI() {
 
   // 1. Top Timezone Render
   const topInfo = getTimeParts(currentDate, state.topTz);
-  if (document.activeElement !== topTimeInput) {
-    topTimeInput.value = `${topInfo.timeDisplay}${topInfo.period}`;
+  if (document.activeElement !== topTimeDigitsInput) {
+    topTimeDigitsInput.value = topInfo.timeDisplay;
   }
+  topPeriodBtn.textContent = topInfo.period;
   topDateText.textContent = topInfo.dateDisplay;
 
   // Selected Zone pill info
@@ -449,9 +452,10 @@ function renderUI() {
 
   // 2. Indian Timezone Render
   const indianInfo = getTimeParts(currentDate, state.indianTz);
-  if (document.activeElement !== indianTimeInput) {
-    indianTimeInput.value = `${indianInfo.timeDisplay}${indianInfo.period}`;
+  if (document.activeElement !== indianTimeDigitsInput) {
+    indianTimeDigitsInput.value = indianInfo.timeDisplay;
   }
+  indianPeriodBtn.textContent = indianInfo.period;
   indianDateText.textContent = indianInfo.dateDisplay;
 }
 
@@ -585,39 +589,31 @@ function renderDropdownResults(query) {
 }
 
 // =====================================================================
-// INLINE TIME TYPING (NO POPUP - SIMPLE DIRECT CHANGE)
+// NUMERIC-ONLY TIME INPUT & AM/PM TOGGLE (NO POPUP)
 // =====================================================================
-function parseTimeInput(str, fallbackPeriod = 'pm') {
+function parseNumericTime(str) {
   if (!str) return null;
-  const clean = str.trim().toLowerCase();
-
-  // Detect explicit AM / PM
-  let period = null;
-  if (clean.includes('am') || clean.endsWith('a')) period = 'am';
-  else if (clean.includes('pm') || clean.endsWith('p')) period = 'pm';
-
-  // Extract digits and colon/dot
-  const numericPart = clean.replace(/[^0-9:.]/g, '');
-  if (!numericPart) return null;
+  const clean = str.trim().replace(/[^0-9:]/g, '');
+  if (!clean) return null;
 
   let h = 0;
   let m = 0;
 
-  if (numericPart.includes(':') || numericPart.includes('.')) {
-    const parts = numericPart.split(/[:.]/);
+  if (clean.includes(':')) {
+    const parts = clean.split(':');
     h = parseInt(parts[0], 10);
     m = parseInt(parts[1], 10) || 0;
-  } else if (numericPart.length === 3) {
-    // e.g. "215" -> 2:15
-    h = parseInt(numericPart.slice(0, 1), 10);
-    m = parseInt(numericPart.slice(1), 10);
-  } else if (numericPart.length === 4) {
+  } else if (clean.length === 3) {
+    // e.g. "230" -> 2:30
+    h = parseInt(clean.slice(0, 1), 10);
+    m = parseInt(clean.slice(1), 10);
+  } else if (clean.length === 4) {
     // e.g. "1015" -> 10:15
-    h = parseInt(numericPart.slice(0, 2), 10);
-    m = parseInt(numericPart.slice(2), 10);
-  } else if (numericPart.length <= 2) {
+    h = parseInt(clean.slice(0, 2), 10);
+    m = parseInt(clean.slice(2), 10);
+  } else if (clean.length <= 2) {
     // e.g. "2" or "10" -> 2:00 or 10:00
-    h = parseInt(numericPart, 10);
+    h = parseInt(clean, 10);
     m = 0;
   } else {
     return null;
@@ -625,32 +621,22 @@ function parseTimeInput(str, fallbackPeriod = 'pm') {
 
   if (isNaN(h) || isNaN(m)) return null;
 
-  // 24-hour time handling (e.g. 14:00 -> 2:00pm)
+  let inferredPeriod = null;
   if (h >= 13 && h <= 23) {
     h = h - 12;
-    period = 'pm';
-  } else if (h === 12) {
-    if (!period) period = 'pm';
+    inferredPeriod = 'pm';
   } else if (h === 0) {
     h = 12;
-    period = 'am';
-  }
-
-  if (!period) {
-    period = fallbackPeriod;
+    inferredPeriod = 'am';
   }
 
   if (h < 1 || h > 12 || m < 0 || m > 59) return null;
 
-  let h24 = h;
-  if (period === 'pm' && h24 < 12) h24 += 12;
-  if (period === 'am' && h24 === 12) h24 = 0;
-
-  return { h, m, period, h24, formatted: `${h}:${String(m).padStart(2, '0')}${period}` };
+  return { h, m, inferredPeriod, formatted: `${h}:${String(m).padStart(2, '0')}` };
 }
 
-function setupInlineTimeInput(inputEl, targetType) {
-  // Select all on focus/click so user can immediately type
+function setupNumericTimeInput(inputEl, periodBtn, targetType) {
+  // Select all on focus/click so user can immediately type numbers
   inputEl.addEventListener('focus', () => {
     inputEl.select();
   });
@@ -659,18 +645,31 @@ function setupInlineTimeInput(inputEl, targetType) {
     inputEl.select();
   });
 
-  function applyTypedTime() {
+  // Filter input to numbers and colon only
+  inputEl.addEventListener('input', () => {
+    const filtered = inputEl.value.replace(/[^0-9:]/g, '');
+    if (filtered !== inputEl.value) {
+      inputEl.value = filtered;
+    }
+  });
+
+  function applyNumericTime() {
     const isIndian = targetType === 'indian';
     const targetTz = isIndian ? state.indianTz : state.topTz;
     const curParts = getTimeParts(new Date(state.simulatedTimestamp), targetTz);
 
-    const parsed = parseTimeInput(inputEl.value, curParts.period);
+    const parsed = parseNumericTime(inputEl.value);
     if (parsed) {
+      const activePeriod = parsed.inferredPeriod || periodBtn.textContent.trim().toLowerCase();
+      let h24 = parsed.h;
+      if (activePeriod === 'pm' && h24 < 12) h24 += 12;
+      if (activePeriod === 'am' && h24 === 12) h24 = 0;
+
       const newTimestamp = makeTimestampFromLocal(
         curParts.year,
         curParts.month,
         curParts.day,
-        parsed.h24,
+        h24,
         parsed.m,
         targetTz
       );
@@ -681,31 +680,59 @@ function setupInlineTimeInput(inputEl, targetType) {
       renderUI();
     } else {
       // Revert if invalid
-      inputEl.value = `${curParts.timeDisplay}${curParts.period}`;
+      inputEl.value = curParts.timeDisplay;
     }
   }
 
   inputEl.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      applyTypedTime();
+      applyNumericTime();
       inputEl.blur();
     } else if (e.key === 'Escape') {
       const isIndian = targetType === 'indian';
       const targetTz = isIndian ? state.indianTz : state.topTz;
       const curParts = getTimeParts(new Date(state.simulatedTimestamp), targetTz);
-      inputEl.value = `${curParts.timeDisplay}${curParts.period}`;
+      inputEl.value = curParts.timeDisplay;
       inputEl.blur();
     }
   });
 
   inputEl.addEventListener('blur', () => {
-    applyTypedTime();
+    applyNumericTime();
+  });
+
+  // Tapping AM / PM toggles it immediately
+  periodBtn.addEventListener('click', () => {
+    const isIndian = targetType === 'indian';
+    const targetTz = isIndian ? state.indianTz : state.topTz;
+    const curParts = getTimeParts(new Date(state.simulatedTimestamp), targetTz);
+
+    const currentPeriod = curParts.period;
+    const newPeriod = currentPeriod === 'am' ? 'pm' : 'am';
+
+    let h24 = parseInt(curParts.hour, 10);
+    if (newPeriod === 'pm' && h24 < 12) h24 += 12;
+    if (newPeriod === 'am' && h24 === 12) h24 = 0;
+
+    const newTimestamp = makeTimestampFromLocal(
+      curParts.year,
+      curParts.month,
+      curParts.day,
+      h24,
+      curParts.m,
+      targetTz
+    );
+
+    state.simulatedTimestamp = newTimestamp;
+    state.isLiveTicking = false;
+    playTactileTick();
+    renderUI();
   });
 }
 
-setupInlineTimeInput(topTimeInput, 'top');
-setupInlineTimeInput(indianTimeInput, 'indian');
+setupNumericTimeInput(topTimeDigitsInput, topPeriodBtn, 'top');
+setupNumericTimeInput(indianTimeDigitsInput, indianPeriodBtn, 'indian');
 
 // =====================================================================
 // DATE PICKER: TAP DATE TO CHANGE

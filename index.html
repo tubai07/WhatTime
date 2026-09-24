@@ -50,18 +50,26 @@
 
         <!-- Upper Time & Date Readout -->
         <div class="time-block" id="topTimeBlock">
-          <div class="inline-time-container" id="topTimeContainer">
+          <div class="time-readout-row" id="topTimeRow">
             <input 
               type="text" 
-              id="topTimeInput" 
-              class="inline-time-input" 
-              value="10:15pm" 
-              placeholder="10:15pm" 
+              id="topTimeDigitsInput" 
+              class="time-digits-input" 
+              value="10:15" 
+              placeholder="10:15" 
+              inputmode="numeric"
+              pattern="[0-9:]*"
+              maxlength="5"
               autocomplete="off" 
               spellcheck="false"
-              title="Type time (e.g. 10:15pm, 2:00pm) and press Enter"
+              title="Type numbers (e.g. 10:15 or 2:30)"
             >
-            <span class="inline-type-hint">Type & press Enter</span>
+            <button 
+              type="button" 
+              id="topPeriodBtn" 
+              class="period-toggle-btn" 
+              title="Tap to toggle AM / PM"
+            >pm</button>
           </div>
 
           <div class="tappable-date" id="topDateDisplay" title="Tap to change date">
@@ -92,18 +100,26 @@
 
         <!-- Lower Time & Date Readout -->
         <div class="time-block" id="indianTimeBlock">
-          <div class="inline-time-container" id="indianTimeContainer">
+          <div class="time-readout-row" id="indianTimeRow">
             <input 
               type="text" 
-              id="indianTimeInput" 
-              class="inline-time-input" 
-              value="10:15pm" 
-              placeholder="10:15pm" 
+              id="indianTimeDigitsInput" 
+              class="time-digits-input" 
+              value="10:15" 
+              placeholder="10:15" 
+              inputmode="numeric"
+              pattern="[0-9:]*"
+              maxlength="5"
               autocomplete="off" 
               spellcheck="false"
-              title="Type Indian time (e.g. 10:15pm, 2:00pm) and press Enter"
+              title="Type Indian time numbers (e.g. 10:15 or 2:30)"
             >
-            <span class="inline-type-hint">Type & press Enter</span>
+            <button 
+              type="button" 
+              id="indianPeriodBtn" 
+              class="period-toggle-btn" 
+              title="Tap to toggle AM / PM"
+            >pm</button>
           </div>
 
           <div class="tappable-date" id="indianDateDisplay" title="Tap to change Indian date">

@@ -369,65 +369,77 @@ body {
 }
 
 /* ==========================================================================
-   INLINE TYPABLE TIME INPUT (NO POPUP - SIMPLE DIRECT TYPING)
+   TIME READOUT ROW: DIGITS (NUMBERS ONLY) + TAPPABLE AM/PM
    ========================================================================== */
-.inline-time-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.time-readout-row {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
   position: relative;
-  width: 100%;
+  border-radius: 20px;
+  padding: 4px 8px;
+  transition: all 0.15s ease;
 }
 
-.inline-time-input {
-  width: 100%;
-  max-width: 340px;
+.time-readout-row:hover {
+  background: rgba(0, 0, 0, 0.035);
+}
+
+.time-digits-input {
+  width: 175px;
   background: transparent;
-  border: 2px solid transparent;
-  border-radius: 18px;
+  border: none;
+  outline: none;
   font-family: var(--font-digits);
   font-size: 4.4rem;
   font-weight: 700;
-  line-height: 1.1;
-  text-align: center;
+  line-height: 1;
+  text-align: right;
   color: var(--ink-primary);
   letter-spacing: -0.04em;
-  padding: 4px 10px;
-  outline: none;
+  padding: 0 4px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s ease;
 }
 
-.inline-time-input:hover {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.14);
-  transform: scale(1.02);
+.time-digits-input:hover {
+  text-decoration: underline dashed rgba(0, 0, 0, 0.2);
+  text-underline-offset: 6px;
 }
 
-.inline-time-input:focus {
-  background: #ffffff;
-  border: 2.5px solid var(--border-card);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.16);
+.time-digits-input:focus {
   cursor: text;
-  transform: scale(1.03);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  outline: 2px solid var(--border-card);
+  text-decoration: none;
 }
 
-/* Micro-hint when typing / hovering */
-.inline-type-hint {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--ink-muted);
-  opacity: 0;
-  transform: translateY(-4px);
-  pointer-events: none;
-  transition: all 0.2s ease;
-  margin-top: 2px;
+.period-toggle-btn {
+  font-family: var(--font-digits);
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink-primary);
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 2px 6px;
+  margin-left: 2px;
+  cursor: pointer;
+  letter-spacing: -0.02em;
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.inline-time-input:focus + .inline-type-hint,
-.inline-time-container:hover .inline-type-hint {
-  opacity: 0.9;
-  transform: translateY(0);
+.period-toggle-btn:hover {
+  background: var(--accent-hover);
+  border-color: var(--border-subtle);
+  transform: translateY(-1px) scale(1.08);
+}
+
+.period-toggle-btn:active {
+  transform: translateY(1px) scale(0.95);
 }
 
 /* Tappable Date Component */
