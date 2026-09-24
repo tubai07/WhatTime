@@ -397,16 +397,12 @@ const topZoneBadge = document.getElementById('topZoneBadge');
 const topZoneName = document.getElementById('topZoneName');
 const topZoneDiff = document.getElementById('topZoneDiff');
 
-const topTimeDisplay = document.getElementById('topTimeDisplay');
-const topTimeText = document.getElementById('topTimeText');
-const topPeriodText = document.getElementById('topPeriodText');
+const topTimeInput = document.getElementById('topTimeInput');
 const topDateDisplay = document.getElementById('topDateDisplay');
 const topDateText = document.getElementById('topDateText');
 
 // Bottom Section (Indian Time)
-const indianTimeDisplay = document.getElementById('indianTimeDisplay');
-const indianTimeText = document.getElementById('indianTimeText');
-const indianPeriodText = document.getElementById('indianPeriodText');
+const indianTimeInput = document.getElementById('indianTimeInput');
 const indianDateDisplay = document.getElementById('indianDateDisplay');
 const indianDateText = document.getElementById('indianDateText');
 
@@ -416,24 +412,6 @@ const fontToggleBtn = document.getElementById('fontToggleBtn');
 const fontToggleLabel = document.getElementById('fontToggleLabel');
 const soundToggleBtn = document.getElementById('soundToggleBtn');
 const soundIcon = document.getElementById('soundIcon');
-
-// Time Picker Modal
-const timePickerModal = document.getElementById('timePickerModal');
-const timePickerTitle = document.getElementById('timePickerTitle');
-const timePickerSubtitle = document.getElementById('timePickerSubtitle');
-const timePickerCloseBtn = document.getElementById('timePickerCloseBtn');
-const timePickerCancelBtn = document.getElementById('timePickerCancelBtn');
-const timePickerApplyBtn = document.getElementById('timePickerApplyBtn');
-
-const inputHour = document.getElementById('inputHour');
-const inputMin = document.getElementById('inputMin');
-const hourUpBtn = document.getElementById('hourUpBtn');
-const hourDownBtn = document.getElementById('hourDownBtn');
-const minUpBtn = document.getElementById('minUpBtn');
-const minDownBtn = document.getElementById('minDownBtn');
-const btnAm = document.getElementById('btnAm');
-const btnPm = document.getElementById('btnPm');
-const previewOtherTime = document.getElementById('previewOtherTime');
 
 // Date Picker Modal
 const datePickerModal = document.getElementById('datePickerModal');
@@ -456,8 +434,9 @@ function renderUI() {
 
   // 1. Top Timezone Render
   const topInfo = getTimeParts(currentDate, state.topTz);
-  topTimeText.textContent = topInfo.timeDisplay;
-  topPeriodText.textContent = topInfo.period;
+  if (document.activeElement !== topTimeInput) {
+    topTimeInput.value = `${topInfo.timeDisplay}${topInfo.period}`;
+  }
   topDateText.textContent = topInfo.dateDisplay;
 
   // Selected Zone pill info
@@ -470,8 +449,9 @@ function renderUI() {
 
   // 2. Indian Timezone Render
   const indianInfo = getTimeParts(currentDate, state.indianTz);
-  indianTimeText.textContent = indianInfo.timeDisplay;
-  indianPeriodText.textContent = indianInfo.period;
+  if (document.activeElement !== indianTimeInput) {
+    indianTimeInput.value = `${indianInfo.timeDisplay}${indianInfo.period}`;
+  }
   indianDateText.textContent = indianInfo.dateDisplay;
 }
 
@@ -489,14 +469,12 @@ setInterval(() => {
 
 // Note: Clicking or focusing does NOT show dropdown!
 tzSearchInput.addEventListener('click', (e) => {
-  // If user clicks, do NOT open dropdown if empty!
   if (tzSearchInput.value.trim().length === 0) {
     tzDropdown.classList.remove('open');
   }
 });
 
 tzSearchInput.addEventListener('focus', (e) => {
-  // If input is empty, dropdown stays completely hidden
   if (tzSearchInput.value.trim().length === 0) {
     tzDropdown.classList.remove('open');
   }
@@ -507,7 +485,6 @@ tzSearchInput.addEventListener('input', (e) => {
   const query = tzSearchInput.value.trim().toLowerCase();
 
   if (query.length === 0) {
-    // Hide dropdown when empty
     tzDropdown.classList.remove('open');
     tzClearBtn.classList.remove('visible');
     return;
@@ -608,206 +585,127 @@ function renderDropdownResults(query) {
 }
 
 // =====================================================================
-// TIME PICKER: TAP TIME TO CHANGE (BIDIRECTIONAL SYNCHRONIZATION)
+// INLINE TIME TYPING (NO POPUP - SIMPLE DIRECT CHANGE)
 // =====================================================================
-function openTimePicker(target) {
-  initAudio();
-  playTactileTick();
+function parseTimeInput(str, fallbackPeriod = 'pm') {
+  if (!str) return null;
+  const clean = str.trim().toLowerCase();
 
-  state.activeModalTarget = target;
-  const isIndian = target === 'indian';
-  const tz = isIndian ? state.indianTz : state.topTz;
-  const label = isIndian ? 'Indian Time (IST)' : `Top Time (${topZoneBadge.textContent})`;
+  // Detect explicit AM / PM
+  let period = null;
+  if (clean.includes('am') || clean.endsWith('a')) period = 'am';
+  else if (clean.includes('pm') || clean.endsWith('p')) period = 'pm';
 
-  timePickerTitle.textContent = `Change ${label}`;
-  timePickerSubtitle.textContent = isIndian
-    ? 'Changing Indian time will automatically adjust the top time.'
-    : 'Changing the top time will automatically adjust Indian time.';
+  // Extract digits and colon/dot
+  const numericPart = clean.replace(/[^0-9:.]/g, '');
+  if (!numericPart) return null;
 
-  const curParts = getTimeParts(new Date(state.simulatedTimestamp), tz);
-  state.modalHour = parseInt(curParts.hour, 10);
-  state.modalMin = curParts.m;
-  state.modalPeriod = curParts.period;
+  let h = 0;
+  let m = 0;
 
-  updateModalInputs();
-  updateCrossZonePreview();
-
-  if (timePickerModal.showModal) {
-    timePickerModal.showModal();
+  if (numericPart.includes(':') || numericPart.includes('.')) {
+    const parts = numericPart.split(/[:.]/);
+    h = parseInt(parts[0], 10);
+    m = parseInt(parts[1], 10) || 0;
+  } else if (numericPart.length === 3) {
+    // e.g. "215" -> 2:15
+    h = parseInt(numericPart.slice(0, 1), 10);
+    m = parseInt(numericPart.slice(1), 10);
+  } else if (numericPart.length === 4) {
+    // e.g. "1015" -> 10:15
+    h = parseInt(numericPart.slice(0, 2), 10);
+    m = parseInt(numericPart.slice(2), 10);
+  } else if (numericPart.length <= 2) {
+    // e.g. "2" or "10" -> 2:00 or 10:00
+    h = parseInt(numericPart, 10);
+    m = 0;
+  } else {
+    return null;
   }
+
+  if (isNaN(h) || isNaN(m)) return null;
+
+  // 24-hour time handling (e.g. 14:00 -> 2:00pm)
+  if (h >= 13 && h <= 23) {
+    h = h - 12;
+    period = 'pm';
+  } else if (h === 12) {
+    if (!period) period = 'pm';
+  } else if (h === 0) {
+    h = 12;
+    period = 'am';
+  }
+
+  if (!period) {
+    period = fallbackPeriod;
+  }
+
+  if (h < 1 || h > 12 || m < 0 || m > 59) return null;
+
+  let h24 = h;
+  if (period === 'pm' && h24 < 12) h24 += 12;
+  if (period === 'am' && h24 === 12) h24 = 0;
+
+  return { h, m, period, h24, formatted: `${h}:${String(m).padStart(2, '0')}${period}` };
 }
 
-function updateModalInputs() {
-  inputHour.value = state.modalHour;
-  inputMin.value = String(state.modalMin).padStart(2, '0');
-
-  btnAm.classList.toggle('active', state.modalPeriod === 'am');
-  btnPm.classList.toggle('active', state.modalPeriod === 'pm');
-}
-
-function updateCrossZonePreview() {
-  const isIndian = state.activeModalTarget === 'indian';
-  const editingTz = isIndian ? state.indianTz : state.topTz;
-  const otherTz = isIndian ? state.topTz : state.indianTz;
-
-  const curDate = new Date(state.simulatedTimestamp);
-  const curParts = getTimeParts(curDate, editingTz);
-
-  // Convert 12h to 24h
-  let h24 = state.modalHour;
-  if (state.modalPeriod === 'pm' && h24 < 12) h24 += 12;
-  if (state.modalPeriod === 'am' && h24 === 12) h24 = 0;
-
-  // Compute what the simulated timestamp would be
-  const prospectiveTimestamp = makeTimestampFromLocal(
-    curParts.year,
-    curParts.month,
-    curParts.day,
-    h24,
-    state.modalMin,
-    editingTz
-  );
-
-  const otherParts = getTimeParts(new Date(prospectiveTimestamp), otherTz);
-  const otherLabel = isIndian ? topZoneBadge.textContent : 'Indian Time (IST)';
-
-  previewOtherTime.textContent = `${otherParts.timeDisplay} ${otherParts.period}, ${otherParts.dateDisplay} (${otherLabel})`;
-}
-
-// Hour & Min Controls
-hourUpBtn.addEventListener('click', () => {
-  state.modalHour = state.modalHour === 12 ? 1 : state.modalHour + 1;
-  playTactileTick();
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-hourDownBtn.addEventListener('click', () => {
-  state.modalHour = state.modalHour === 1 ? 12 : state.modalHour - 1;
-  playTactileTick();
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-minUpBtn.addEventListener('click', () => {
-  state.modalMin = (state.modalMin + 1) % 60;
-  playTactileTick();
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-minDownBtn.addEventListener('click', () => {
-  state.modalMin = (state.modalMin + 59) % 60;
-  playTactileTick();
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-inputHour.addEventListener('change', () => {
-  let val = parseInt(inputHour.value, 10);
-  if (isNaN(val) || val < 1) val = 1;
-  if (val > 12) val = 12;
-  state.modalHour = val;
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-inputMin.addEventListener('change', () => {
-  let val = parseInt(inputMin.value, 10);
-  if (isNaN(val) || val < 0) val = 0;
-  if (val > 59) val = 59;
-  state.modalMin = val;
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-btnAm.addEventListener('click', () => {
-  state.modalPeriod = 'am';
-  playTactileTick();
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-btnPm.addEventListener('click', () => {
-  state.modalPeriod = 'pm';
-  playTactileTick();
-  updateModalInputs();
-  updateCrossZonePreview();
-});
-
-// Quick Nudge Buttons (-1h, -15m, +15m, +1h)
-document.querySelectorAll('.nudge-chip').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const delta = parseInt(btn.dataset.delta, 10);
-    playTactileTick();
-
-    let totalMins = (state.modalHour % 12) * 60 + state.modalMin;
-    if (state.modalPeriod === 'pm') totalMins += 12 * 60;
-
-    totalMins = (totalMins + delta + 1440) % 1440;
-
-    let newH24 = Math.floor(totalMins / 60);
-    let newMin = totalMins % 60;
-
-    state.modalPeriod = newH24 >= 12 ? 'pm' : 'am';
-    let newH12 = newH24 % 12;
-    if (newH12 === 0) newH12 = 12;
-
-    state.modalHour = newH12;
-    state.modalMin = newMin;
-
-    updateModalInputs();
-    updateCrossZonePreview();
+function setupInlineTimeInput(inputEl, targetType) {
+  // Select all on focus/click so user can immediately type
+  inputEl.addEventListener('focus', () => {
+    inputEl.select();
   });
-});
 
-// Apply Time
-timePickerApplyBtn.addEventListener('click', () => {
-  const isIndian = state.activeModalTarget === 'indian';
-  const targetTz = isIndian ? state.indianTz : state.topTz;
+  inputEl.addEventListener('click', () => {
+    inputEl.select();
+  });
 
-  const curDate = new Date(state.simulatedTimestamp);
-  const curParts = getTimeParts(curDate, targetTz);
+  function applyTypedTime() {
+    const isIndian = targetType === 'indian';
+    const targetTz = isIndian ? state.indianTz : state.topTz;
+    const curParts = getTimeParts(new Date(state.simulatedTimestamp), targetTz);
 
-  let h24 = state.modalHour;
-  if (state.modalPeriod === 'pm' && h24 < 12) h24 += 12;
-  if (state.modalPeriod === 'am' && h24 === 12) h24 = 0;
+    const parsed = parseTimeInput(inputEl.value, curParts.period);
+    if (parsed) {
+      const newTimestamp = makeTimestampFromLocal(
+        curParts.year,
+        curParts.month,
+        curParts.day,
+        parsed.h24,
+        parsed.m,
+        targetTz
+      );
 
-  // Calculate new exact UTC timestamp
-  const newTimestamp = makeTimestampFromLocal(
-    curParts.year,
-    curParts.month,
-    curParts.day,
-    h24,
-    state.modalMin,
-    targetTz
-  );
-
-  state.simulatedTimestamp = newTimestamp;
-  state.isLiveTicking = false; // Freeze clock to user's set time
-  playTactileTick();
-  renderUI();
-  timePickerModal.close();
-});
-
-timePickerCloseBtn.addEventListener('click', () => timePickerModal.close());
-timePickerCancelBtn.addEventListener('click', () => timePickerModal.close());
-
-timePickerModal.addEventListener('click', (e) => {
-  const rect = timePickerModal.getBoundingClientRect();
-  if (
-    e.clientX < rect.left ||
-    e.clientX > rect.right ||
-    e.clientY < rect.top ||
-    e.clientY > rect.bottom
-  ) {
-    timePickerModal.close();
+      state.simulatedTimestamp = newTimestamp;
+      state.isLiveTicking = false; // Freeze live clock to user's typed time
+      playTactileTick();
+      renderUI();
+    } else {
+      // Revert if invalid
+      inputEl.value = `${curParts.timeDisplay}${curParts.period}`;
+    }
   }
-});
 
-// Click handlers for Tappable Time
-topTimeDisplay.addEventListener('click', () => openTimePicker('top'));
-indianTimeDisplay.addEventListener('click', () => openTimePicker('indian'));
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      applyTypedTime();
+      inputEl.blur();
+    } else if (e.key === 'Escape') {
+      const isIndian = targetType === 'indian';
+      const targetTz = isIndian ? state.indianTz : state.topTz;
+      const curParts = getTimeParts(new Date(state.simulatedTimestamp), targetTz);
+      inputEl.value = `${curParts.timeDisplay}${curParts.period}`;
+      inputEl.blur();
+    }
+  });
+
+  inputEl.addEventListener('blur', () => {
+    applyTypedTime();
+  });
+}
+
+setupInlineTimeInput(topTimeInput, 'top');
+setupInlineTimeInput(indianTimeInput, 'indian');
 
 // =====================================================================
 // DATE PICKER: TAP DATE TO CHANGE

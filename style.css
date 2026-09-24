@@ -368,64 +368,64 @@ body {
   text-align: center;
 }
 
-/* Tappable Time Component */
-.tappable-time {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: center;
-  cursor: pointer;
-  padding: 6px 16px;
-  border-radius: 20px;
+/* ==========================================================================
+   INLINE TYPABLE TIME INPUT (NO POPUP - SIMPLE DIRECT TYPING)
+   ========================================================================== */
+.inline-time-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
-  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.4, 1), background 0.15s ease;
+  width: 100%;
 }
 
-.tappable-time:hover {
-  background: rgba(0, 0, 0, 0.04);
-  transform: scale(1.025);
-}
-
-.tappable-time:active {
-  transform: scale(0.98);
-}
-
-.time-main {
+.inline-time-input {
+  width: 100%;
+  max-width: 340px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 18px;
   font-family: var(--font-digits);
   font-size: 4.4rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--ink-primary);
   letter-spacing: -0.04em;
-  color: var(--ink-primary);
+  padding: 4px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.time-meridiem {
-  font-family: var(--font-digits);
-  font-size: 2.1rem;
-  font-weight: 600;
-  line-height: 1;
-  margin-left: 2px;
-  letter-spacing: -0.02em;
-  color: var(--ink-primary);
+.inline-time-input:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.14);
+  transform: scale(1.02);
 }
 
-/* Micro "Tap to edit" hint pill on hover */
-.tap-hint-pill {
-  position: absolute;
-  bottom: -6px;
-  background: var(--ink-primary);
-  color: #ffffff;
-  font-size: 0.65rem;
+.inline-time-input:focus {
+  background: #ffffff;
+  border: 2.5px solid var(--border-card);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.16);
+  cursor: text;
+  transform: scale(1.03);
+}
+
+/* Micro-hint when typing / hovering */
+.inline-type-hint {
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
+  color: var(--ink-muted);
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(-4px);
   pointer-events: none;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  margin-top: 2px;
 }
 
-.tappable-time:hover .tap-hint-pill {
+.inline-time-input:focus + .inline-type-hint,
+.inline-time-container:hover .inline-type-hint {
   opacity: 0.9;
   transform: translateY(0);
 }
@@ -633,173 +633,6 @@ body {
   margin-top: -8px;
 }
 
-/* Time Spinner Pickers */
-.time-spinner-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px 6px;
-  background: var(--accent-soft);
-  border: 1.8px solid var(--border-subtle);
-  border-radius: 20px;
-}
-
-.spinner-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.spin-btn {
-  background: #ffffff;
-  border: 1.6px solid var(--border-card);
-  border-radius: 8px;
-  width: 44px;
-  height: 30px;
-  font-size: 0.72rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.1s ease;
-}
-
-.spin-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-}
-
-.spin-btn:active {
-  transform: translateY(1px);
-}
-
-.spin-num-input {
-  width: 58px;
-  height: 52px;
-  font-family: var(--font-digits);
-  font-size: 2rem;
-  font-weight: 700;
-  text-align: center;
-  border: 2px solid var(--border-card);
-  border-radius: 12px;
-  background: #ffffff;
-  color: var(--ink-primary);
-  outline: none;
-}
-
-/* Remove number input spinners */
-.spin-num-input::-webkit-outer-spin-button,
-.spin-num-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.spin-num-input {
-  -moz-appearance: textfield;
-}
-
-.spinner-colon {
-  font-family: var(--font-digits);
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-top: -16px;
-}
-
-.spin-col-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--ink-muted);
-  text-transform: uppercase;
-}
-
-/* AM/PM Toggle Group */
-.meridiem-col {
-  margin-left: 6px;
-}
-
-.meridiem-toggle-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  height: 88px;
-  justify-content: center;
-}
-
-.ampm-btn {
-  background: #ffffff;
-  border: 1.8px solid var(--border-card);
-  border-radius: 10px;
-  width: 48px;
-  height: 38px;
-  font-family: var(--font-digits);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--ink-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.ampm-btn.active {
-  background: var(--ink-primary);
-  color: #ffffff;
-  border-color: var(--ink-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Quick Nudge Increment Chips */
-.quick-nudge-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.nudge-chip {
-  flex: 1;
-  height: 36px;
-  background: #ffffff;
-  border: 1.6px solid var(--border-card);
-  border-radius: 10px;
-  font-family: var(--font-digits);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ink-primary);
-  cursor: pointer;
-  transition: all 0.12s ease;
-}
-
-.nudge-chip:hover {
-  background: var(--accent-soft);
-  transform: translateY(-1px);
-}
-
-.nudge-chip:active {
-  transform: translateY(1px);
-}
-
-/* Cross Zone Preview */
-.cross-zone-preview {
-  background: #f8fafc;
-  border: 1.5px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.preview-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--ink-muted);
-}
-
-.preview-value {
-  font-family: var(--font-digits);
-  font-size: 0.98rem;
-  font-weight: 700;
-  color: #1e3a8a;
-}
 
 /* Modal Actions */
 .modal-footer-btns {

@@ -50,9 +50,18 @@
 
         <!-- Upper Time & Date Readout -->
         <div class="time-block" id="topTimeBlock">
-          <div class="tappable-time" id="topTimeDisplay" title="Tap to change time">
-            <span class="time-main" id="topTimeText">10:15</span><span class="time-meridiem" id="topPeriodText">pm</span>
-            <span class="tap-hint-pill">Tap to edit</span>
+          <div class="inline-time-container" id="topTimeContainer">
+            <input 
+              type="text" 
+              id="topTimeInput" 
+              class="inline-time-input" 
+              value="10:15pm" 
+              placeholder="10:15pm" 
+              autocomplete="off" 
+              spellcheck="false"
+              title="Type time (e.g. 10:15pm, 2:00pm) and press Enter"
+            >
+            <span class="inline-type-hint">Type & press Enter</span>
           </div>
 
           <div class="tappable-date" id="topDateDisplay" title="Tap to change date">
@@ -83,9 +92,18 @@
 
         <!-- Lower Time & Date Readout -->
         <div class="time-block" id="indianTimeBlock">
-          <div class="tappable-time" id="indianTimeDisplay" title="Tap to change Indian time">
-            <span class="time-main" id="indianTimeText">10:15</span><span class="time-meridiem" id="indianPeriodText">pm</span>
-            <span class="tap-hint-pill">Tap to edit</span>
+          <div class="inline-time-container" id="indianTimeContainer">
+            <input 
+              type="text" 
+              id="indianTimeInput" 
+              class="inline-time-input" 
+              value="10:15pm" 
+              placeholder="10:15pm" 
+              autocomplete="off" 
+              spellcheck="false"
+              title="Type Indian time (e.g. 10:15pm, 2:00pm) and press Enter"
+            >
+            <span class="inline-type-hint">Type & press Enter</span>
           </div>
 
           <div class="tappable-date" id="indianDateDisplay" title="Tap to change Indian date">
@@ -122,72 +140,6 @@
 
     </div>
   </main>
-
-  <!-- ============================================== -->
-  <!-- MODAL: TIME ADJUSTER (TAP TO CHANGE TIME)       -->
-  <!-- ============================================== -->
-  <dialog id="timePickerModal" class="sketch-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="timePickerTitle" class="modal-title">Set Time</h3>
-        <button id="timePickerCloseBtn" class="modal-close-x" type="button">✕</button>
-      </div>
-
-      <p class="modal-subtitle" id="timePickerSubtitle">
-        Adjusting will keep both timezones synchronized.
-      </p>
-
-      <!-- Time Input Spinner / Pickers -->
-      <div class="time-spinner-container">
-        <!-- Hour -->
-        <div class="spinner-col">
-          <button class="spin-btn spin-up" id="hourUpBtn" type="button">▲</button>
-          <input type="number" id="inputHour" class="spin-num-input" min="1" max="12" value="10">
-          <button class="spin-btn spin-down" id="hourDownBtn" type="button">▼</button>
-          <span class="spin-col-label">Hour</span>
-        </div>
-
-        <div class="spinner-colon">:</div>
-
-        <!-- Minute -->
-        <div class="spinner-col">
-          <button class="spin-btn spin-up" id="minUpBtn" type="button">▲</button>
-          <input type="number" id="inputMin" class="spin-num-input" min="0" max="59" value="15">
-          <button class="spin-btn spin-down" id="minDownBtn" type="button">▼</button>
-          <span class="spin-col-label">Min</span>
-        </div>
-
-        <!-- AM/PM Toggle Buttons -->
-        <div class="spinner-col meridiem-col">
-          <div class="meridiem-toggle-group">
-            <button type="button" class="ampm-btn" id="btnAm">AM</button>
-            <button type="button" class="ampm-btn active" id="btnPm">PM</button>
-          </div>
-          <span class="spin-col-label">Period</span>
-        </div>
-      </div>
-
-      <!-- Quick Nudge Increment Chips -->
-      <div class="quick-nudge-row">
-        <button type="button" class="nudge-chip" data-delta="-60">-1h</button>
-        <button type="button" class="nudge-chip" data-delta="-15">-15m</button>
-        <button type="button" class="nudge-chip" data-delta="15">+15m</button>
-        <button type="button" class="nudge-chip" data-delta="60">+1h</button>
-      </div>
-
-      <!-- Realtime Cross-Zone Preview -->
-      <div class="cross-zone-preview" id="crossZonePreview">
-        <span class="preview-label">Will update other timezone to:</span>
-        <span class="preview-value" id="previewOtherTime">10:15 am, 24 Sept</span>
-      </div>
-
-      <!-- Modal Action Buttons -->
-      <div class="modal-footer-btns">
-        <button type="button" id="timePickerCancelBtn" class="m-btn m-btn-secondary">Cancel</button>
-        <button type="button" id="timePickerApplyBtn" class="m-btn m-btn-primary">Apply Time</button>
-      </div>
-    </div>
-  </dialog>
 
   <!-- ============================================== -->
   <!-- MODAL: DATE PICKER (TAP TO CHANGE DATE)         -->
