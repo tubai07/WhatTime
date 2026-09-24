@@ -435,6 +435,7 @@ function renderUI() {
   if (document.activeElement !== topTimeDigitsInput) {
     topTimeDigitsInput.value = topInfo.timeDisplay;
   }
+  topTimeDigitsInput.style.width = topTimeDigitsInput.value.length <= 4 ? '180px' : '220px';
   topPeriodBtn.textContent = topInfo.period;
   topDateText.textContent = topInfo.dateDisplay;
 
@@ -451,6 +452,7 @@ function renderUI() {
   if (document.activeElement !== indianTimeDigitsInput) {
     indianTimeDigitsInput.value = indianInfo.timeDisplay;
   }
+  indianTimeDigitsInput.style.width = indianTimeDigitsInput.value.length <= 4 ? '180px' : '220px';
   indianPeriodBtn.textContent = indianInfo.period;
   indianDateText.textContent = indianInfo.dateDisplay;
 }
@@ -630,12 +632,13 @@ function setupNumericTimeInput(inputEl, periodBtn, targetType) {
     inputEl.select();
   });
 
-  // Filter input to numbers and colon only
+  // Filter input to numbers and colon only and adjust width
   inputEl.addEventListener('input', () => {
     const filtered = inputEl.value.replace(/[^0-9:]/g, '');
     if (filtered !== inputEl.value) {
       inputEl.value = filtered;
     }
+    inputEl.style.width = inputEl.value.length <= 4 ? '180px' : '220px';
   });
 
   function applyNumericTime() {
